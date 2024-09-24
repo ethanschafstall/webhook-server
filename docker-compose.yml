@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  node:
+    build:
+      context: .
+      dockerfile: nodejs.dockerfile
+    container_name: node-app
+    ports:
+      - '4400:4400'
+    environment:
+      MYSQL_HOST: db
+      MYSQL_USER: mysql_user
+      MYSQL_PASSWORD: mysql_root_password
+      MYSQL_DATABASE: webhook_server_db
+      PRIVATE_KEY: private_key
+      PEPPER: pepper
+    depends_on:
+      - db
+    volumes:
+      - ./app:/app
+    networks:
+      - app-network
+
+  db:
+    image: mysql:8.0
+    container_name: mysql-db
+    ports:
+      - '3306:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql_root_password
+      MYSQL_DATABASE: webhook_server_db
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - app-network
+
+volumes:
+  mysql-data:
+
+networks:
+  app-network:
+
+secrets:
+  mysql_root_password:
+    file: .secrets/MYSQL_ROOT_PASSWORD.txt
+
+  mysql_user:
+    file: .secrets/MYSQL_USER.txt
+
+  private_key:
+    file: .secrets/PRIVATE_KEY.txt
+
+  private_key:
+    file: .secrets/PEPPER.txt
+
